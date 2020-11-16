@@ -19,22 +19,38 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Map;
+import java.util.TimeZone;
 
 @Component
 public class MsgSend2 {
     @Autowired
     private MapConfig mapConfig;
+    private int counter =0;
+    Calendar firstTime = Calendar.getInstance();
     private Logger logger = LoggerFactory.getLogger(MsgSend2.class);
 
     public synchronized  String send(JSONObject message) {
+        Long time =  Long.valueOf(0);
+        if (counter == 0 ){
+            firstTime = Calendar.getInstance();
+            counter ++;
+        }else if(counter == 19){
+            time = Calendar.getInstance().getTimeInMillis() - firstTime.getTimeInMillis();
+            if (time < 60000){
+                try {
+                    Thread.sleep(60000 - time);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            counter = 0;
+        } else {
+            counter ++;
+        }
         String returnValue = "这是默认返回值，接口调用失败";
         CloseableHttpClient httpclient = HttpClients.createDefault();
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         logger.info(message.toJSONString());
         String target = message.get("target") !=  null ? message.get("target").toString() : "default";
         logger.info("target is :{}",target);
@@ -56,7 +72,7 @@ public class MsgSend2 {
         }catch (Exception e){
             e.printStackTrace();
         }
-        logger.info("钉钉调用返回信息: {}",returnValue);
+        logger.info("钉钉调用返回信息: {};counter:{}",returnValue,counter);
         try {
             httpclient.close();
         } catch (IOException e) {
