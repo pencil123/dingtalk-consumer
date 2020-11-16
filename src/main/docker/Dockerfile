@@ -2,7 +2,7 @@ FROM java
 
 MAINTAINER lyzhang "zhangluyan@jsh.com"
 
-ENV APP_NAME dingtalk-consumer-0.0.1-SNAPSHOT.jar
+ENV APP_NAME dingtalk-consumer.jar
 ENV WORK_PATH /
 
 #VOLUME
@@ -15,4 +15,4 @@ WORKDIR $WORK_PATH
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom"]
 
 # CMD
-CMD ["-jar", "/data/dingtalk/dingtalk-consumer-0.0.1-SNAPSHOT.jar"]
+CMD ["-jar", "/data/dingtalk/dingtalk-consumer.jar"]

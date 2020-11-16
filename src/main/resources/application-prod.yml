@@ -1,0 +1,9 @@
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+dingtalk:
+  default: https://oapi.dingtalk.com/robot/send?access_token=56f188b3a38dfc90f054abe901a4c41d11a2fcfeb9c792b39a486dcaf43933cf
+  test: https://oapi.dingtalk.com/robot/send?access_token=1d96f463a8d7b3327dde610374887f1227dcf2e604cc88905c5c84a941714604

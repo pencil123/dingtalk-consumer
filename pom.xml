@@ -10,7 +10,7 @@
     </parent>
     <groupId>cn.blogs</groupId>
     <artifactId>dingtalk-consumer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>dingtalk-consumer</name>
     <description>Demo project for Spring Boot</description>
 
@@ -59,6 +59,11 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.12</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
@@ -66,14 +71,10 @@
     </dependencies>
 
     <build>
+        <finalName>${artifactId}</finalName>
         <resources>
             <resource>
-                <directory>src/main/docker</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/Dockerfile</include>
-                </includes>
-                <targetPath>${project.basedir}/target/docker</targetPath>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
         <plugins>
@@ -89,10 +90,11 @@
                     <imageName>${docker.repostory}/${docker.registry.name}/${project.artifactId}</imageName>
                     <!--suppress UnresolvedMavenProperty -->
                     <dockerHost>${diy.dockerhost}</dockerHost>
-                    <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
                     <imageTags>
                         <imageTag>${project.version}</imageTag>
                     </imageTags>
+                    <baseImage>java</baseImage>
+                    <entryPoint>["java", "-jar", "/${project.build.finalName}.${project.packaging}"]</entryPoint>
                     <resources>
                         <resource>
                             <targetPath>/</targetPath>
