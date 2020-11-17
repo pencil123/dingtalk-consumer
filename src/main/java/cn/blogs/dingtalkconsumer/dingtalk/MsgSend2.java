@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -29,35 +30,40 @@ public class MsgSend2 {
     private MapConfig mapConfig;
     private int counter =0;
     Calendar firstTime = Calendar.getInstance();
+    private Map<String,String> urlsMap;
     private Logger logger = LoggerFactory.getLogger(MsgSend2.class);
 
-    public synchronized  String send(JSONObject message) {
-        Long time =  Long.valueOf(0);
-        if (counter == 0 ){
-            firstTime = Calendar.getInstance();
-            counter ++;
-        }else if(counter == 19){
-            time = Calendar.getInstance().getTimeInMillis() - firstTime.getTimeInMillis();
-            if (time < 60000){
-                try {
-                    Thread.sleep(60000 - time);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+    public String send(JSONObject message) {
+        urlsMap = mapConfig.getUrls();
+        String target = message.get("target") !=  null ? message.get("target").toString() : "default";
+        logger.info("target is :{}",target);
+        logger.info("urls info :{}",urlsMap.toString());
+        logger.info("target dingtalk is :{}",urlsMap.get(target));
+
+        synchronized(urlsMap.get(target)) {
+            Long time = Long.valueOf(0);
+            if (counter == 0) {
+                firstTime = Calendar.getInstance();
+                counter++;
+            } else if (counter == 18) {
+                time = Calendar.getInstance().getTimeInMillis() - firstTime.getTimeInMillis();
+                if (time < 60000) {
+                    try {
+                        Thread.sleep(60000 - time);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
+                counter = 0;
+            } else {
+                counter++;
             }
-            counter = 0;
-        } else {
-            counter ++;
         }
         String returnValue = "这是默认返回值，接口调用失败";
         CloseableHttpClient httpclient = HttpClients.createDefault();
         logger.info(message.toJSONString());
-        String target = message.get("target") !=  null ? message.get("target").toString() : "default";
-        logger.info("target is :{}",target);
-        logger.info("urls info :{}",mapConfig.getUrls().toString());
-        logger.info("target dingtalk is :{}",mapConfig.getUrls().get(target));
 
-        HttpPost httpPost = new HttpPost(mapConfig.getUrls().get(target));
+        HttpPost httpPost = new HttpPost(urlsMap.get(target));
         message.remove("target");
         StringEntity requestEntity = new StringEntity(message.toJSONString(),"utf-8");
         requestEntity.setContentEncoding("UTF-8");
